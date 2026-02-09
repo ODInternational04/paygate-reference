@@ -111,7 +111,7 @@ function paymentForm(benefitType, benefitName) {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: white;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -121,7 +121,8 @@ function paymentForm(benefitType, benefitName) {
     .container {
       background: white;
       border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
       max-width: 450px;
       width: 100%;
       padding: 40px;
@@ -183,7 +184,7 @@ function paymentForm(benefitType, benefitName) {
     button {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #333;
       color: white;
       border: none;
       border-radius: 8px;
@@ -194,7 +195,7 @@ function paymentForm(benefitType, benefitName) {
     }
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     }
     button:active {
       transform: translateY(0);
