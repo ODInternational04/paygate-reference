@@ -259,7 +259,7 @@ app.get("/pay/benefit-a", async (req, res) => {
     }
     
     const memberId = (req.query.memberId || "GEN").toString();
-    const reference = `CHAUFFEUR-${memberId}-${Date.now()}`;
+    const reference = `CHAUFFEUR-DRIVE-${memberId}-${Date.now()}`;
     const email = (req.query.email || "").toString();
     
     // Get amount from query parameter (in Rands) and convert to cents
