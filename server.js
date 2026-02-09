@@ -230,13 +230,13 @@ function paymentForm(benefitType, benefitName) {
       </div>
       
       <div class="form-group">
-        <label>Member ID <span class="optional">(optional)</span></label>
-        <input type="text" name="memberId" placeholder="Enter your member ID">
+        <label>Member ID</label>
+        <input type="text" name="memberId" placeholder="Enter your member ID" required>
       </div>
       
       <div class="form-group">
-        <label>Email <span class="optional">(optional)</span></label>
-        <input type="email" name="email" placeholder="your@email.com">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="your@email.com" required>
       </div>
       
       <button type="submit">Proceed to Payment</button>
