@@ -321,14 +321,268 @@ app.get("/pay/benefit-b", async (req, res) => {
   }
 });
 
-// Minimal return + notify endpoints
+// Thank you page after payment
+function thankYouPage(status, reference, transactionId) {
+  const isApproved = status === "1";
+  const isDeclined = status === "2";
+  const isPending = status === "0" || status === "4";
+  
+  let statusTitle, statusMessage, statusColor, statusIcon;
+  
+  if (isApproved) {
+    statusTitle = "Payment Approved!";
+    statusMessage = "Your payment has been successfully processed.";
+    statusColor = "#10b981";
+    statusIcon = "✓";
+  } else if (isDeclined) {
+    statusTitle = "Payment Declined";
+    statusMessage = "Unfortunately, your payment was declined. Please try again or use a different payment method.";
+    statusColor = "#ef4444";
+    statusIcon = "✗";
+  } else {
+    statusTitle = "Payment Pending";
+    statusMessage = "Your payment is being processed. You will receive a confirmation shortly.";
+    statusColor = "#f59e0b";
+    statusIcon = "⏱";
+  }
+  
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${statusTitle}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 100%;
+      padding: 50px 40px;
+      text-align: center;
+      animation: slideIn 0.5s ease-out;
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .status-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: ${statusColor};
+      color: white;
+      font-size: 60px;
+      line-height: 100px;
+      margin: 0 auto 30px;
+      animation: scaleIn 0.5s ease-out 0.2s both;
+    }
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+    h1 {
+      color: #333;
+      font-size: 32px;
+      margin-bottom: 15px;
+    }
+    .message {
+      color: #666;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    .details {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      text-align: left;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .detail-label {
+      color: #666;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .detail-value {
+      color: #333;
+      font-size: 14px;
+      font-family: monospace;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 40px;
+      background: #333;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    .footer {
+      margin-top: 30px;
+      color: #999;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="status-icon">${statusIcon}</div>
+    <h1>${statusTitle}</h1>
+    <p class="message">${statusMessage}</p>
+    
+    ${reference || transactionId ? `
+    <div class="details">
+      ${reference ? `<div class="detail-row">
+        <span class="detail-label">Reference:</span>
+        <span class="detail-value">${reference}</span>
+      </div>` : ''}
+      ${transactionId ? `<div class="detail-row">
+        <span class="detail-label">Transaction ID:</span>
+        <span class="detail-value">${transactionId}</span>
+      </div>` : ''}
+      <div class="detail-row">
+        <span class="detail-label">Status:</span>
+        <span class="detail-value" style="color: ${statusColor}; font-weight: bold;">${isApproved ? 'APPROVED' : isDeclined ? 'DECLINED' : 'PENDING'}</span>
+      </div>
+    </div>
+    ` : ''}
+    
+    <a href="/" class="button">Return to Home</a>
+    
+    <div class="footer">
+      ${isApproved ? 'You will receive a confirmation email shortly.' : ''}
+      ${isDeclined ? 'Please contact support if you need assistance.' : ''}
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+// Return endpoint - user gets redirected here after payment
 app.get("/pay/return", (req, res) => {
-  res.send("Returned from PayGate. You still need to query or validate notify to confirm payment.");
+  // PayGate returns these parameters
+  const {
+    PAY_REQUEST_ID,
+    TRANSACTION_STATUS,
+    REFERENCE,
+    TRANSACTION_ID,
+    CHECKSUM
+  } = req.query;
+  
+  // Validate checksum
+  if (CHECKSUM) {
+    const checksumSource = 
+      PAYGATE_ID +
+      (PAY_REQUEST_ID || "") +
+      (TRANSACTION_STATUS || "") +
+      (REFERENCE || "") +
+      PAYGATE_KEY;
+    const calculatedChecksum = md5(checksumSource);
+    
+    if (calculatedChecksum !== CHECKSUM) {
+      console.error("Invalid checksum on return");
+      return res.status(400).send("Invalid transaction data");
+    }
+  }
+  
+  res.type("html").send(thankYouPage(
+    TRANSACTION_STATUS || "0",
+    REFERENCE,
+    TRANSACTION_ID
+  ));
 });
 
+// Notify endpoint - PayGate posts transaction results here
 app.post("/pay/notify", express.urlencoded({ extended: false }), (req, res) => {
-  // PayGate will POST transaction results here.
-  // Next step: validate checksum and record transaction.
+  // PayGate will POST transaction results here
+  const {
+    PAYGATE_ID: receivedPaygateId,
+    PAY_REQUEST_ID,
+    REFERENCE,
+    TRANSACTION_STATUS,
+    TRANSACTION_ID,
+    RESULT_CODE,
+    AUTH_CODE,
+    AMOUNT,
+    RESULT_DESC,
+    TRANSACTION_DATE,
+    CHECKSUM
+  } = req.body;
+  
+  // Validate checksum
+  const checksumSource = 
+    (receivedPaygateId || "") +
+    (PAY_REQUEST_ID || "") +
+    (REFERENCE || "") +
+    (TRANSACTION_STATUS || "") +
+    (RESULT_CODE || "") +
+    (AUTH_CODE || "") +
+    (AMOUNT || "") +
+    (RESULT_DESC || "") +
+    (TRANSACTION_ID || "") +
+    (TRANSACTION_DATE || "") +
+    PAYGATE_KEY;
+  
+  const calculatedChecksum = md5(checksumSource);
+  
+  if (calculatedChecksum !== CHECKSUM) {
+    console.error("Invalid checksum on notify");
+    return res.status(400).send("ERROR");
+  }
+  
+  // Log transaction details
+  console.log("Payment notification received:", {
+    reference: REFERENCE,
+    status: TRANSACTION_STATUS,
+    transactionId: TRANSACTION_ID,
+    resultCode: RESULT_CODE,
+    amount: AMOUNT,
+    resultDesc: RESULT_DESC
+  });
+  
+  // Here you would typically:
+  // 1. Store transaction in database
+  // 2. Update order status
+  // 3. Send confirmation email
+  // 4. Trigger any post-payment workflows
+  
   res.status(200).send("OK");
 });
 
