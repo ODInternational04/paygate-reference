@@ -606,7 +606,18 @@ function handlePaymentReturn(req, res) {
     CHECKSUM
   } = data;
   
-  // Validate checksum
+  // Log received data for debugging
+  console.log("Payment return received:", {
+    method: req.method,
+    PAY_REQUEST_ID,
+    TRANSACTION_STATUS,
+    REFERENCE,
+    TRANSACTION_ID,
+    CHECKSUM: CHECKSUM ? "present" : "missing",
+    allData: data
+  });
+  
+  // Validate checksum if provided
   if (CHECKSUM) {
     const checksumSource = 
       PAYGATE_ID +
@@ -616,10 +627,38 @@ function handlePaymentReturn(req, res) {
       PAYGATE_KEY;
     const calculatedChecksum = md5(checksumSource);
     
+    console.log("Checksum validation:", {
+      received: CHECKSUM,
+      calculated: calculatedChecksum,
+      match: calculatedChecksum === CHECKSUM
+    });
+    
     if (calculatedChecksum !== CHECKSUM) {
-      console.error("Invalid checksum on return");
-      return res.status(400).send("Invalid transaction data");
+      console.error("Invalid checksum on return. Checksum source:", {
+        PAYGATE_ID,
+        PAY_REQUEST_ID,
+        TRANSACTION_STATUS,
+        REFERENCE
+      });
+      
+      // Show error page with details for debugging
+      return res.status(400).type("html").send(`
+        <!doctype html>
+        <html>
+        <head><title>Transaction Verification Failed</title></head>
+        <body style="font-family: sans-serif; padding: 40px; max-width: 600px; margin: 0 auto;">
+          <h1>Transaction Verification Failed</h1>
+          <p>The transaction data received could not be verified. This may be a temporary issue.</p>
+          <p><strong>Reference:</strong> ${REFERENCE || "N/A"}</p>
+          <p><strong>Transaction Status:</strong> ${TRANSACTION_STATUS || "N/A"}</p>
+          <p>Please contact support with your reference number if this payment was successful.</p>
+          <a href="/" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #333; color: white; text-decoration: none; border-radius: 5px;">Return to Home</a>
+        </body>
+        </html>
+      `);
     }
+  } else {
+    console.warn("No checksum provided in return data");
   }
   
   res.type("html").send(thankYouPage(
