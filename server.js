@@ -254,6 +254,101 @@ function paymentForm(benefitType, benefitName) {
 </html>`;
 }
 
+// Home page - landing page with links to both payment forms
+app.get("/", (req, res) => {
+  res.type("html").send(`<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Gateway</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 600px;
+      width: 100%;
+      padding: 50px 40px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+      font-size: 36px;
+      margin-bottom: 15px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 40px;
+      font-size: 16px;
+    }
+    .cards {
+      display: grid;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      padding: 30px;
+      text-decoration: none;
+      color: white;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+    .card h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .card p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .footer {
+      color: #999;
+      font-size: 13px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Payment Gateway</h1>
+    <p class="subtitle">Select a payment option to continue</p>
+    
+    <div class="cards">
+      <a href="/pay/benefit-a" class="card">
+        <h2>Chauffeur Drive</h2>
+        <p>Premium chauffeur service payment</p>
+      </a>
+      
+      <a href="/pay/benefit-b" class="card">
+        <h2>Luxury African Safari</h2>
+        <p>Luxury safari experience payment</p>
+      </a>
+    </div>
+    
+    <div class="footer">
+      Secure payment powered by PayGate
+    </div>
+  </div>
+</body>
+</html>`);
+});
+
 // Your two public links
 app.get("/pay/benefit-a", async (req, res) => {
   try {
