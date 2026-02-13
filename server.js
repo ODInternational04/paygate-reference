@@ -594,16 +594,17 @@ function thankYouPage(status, reference, transactionId) {
 </html>`;
 }
 
-// Return endpoint - user gets redirected here after payment
-app.get("/pay/return", (req, res) => {
-  // PayGate returns these parameters
+// Return endpoint handler - shared for both GET and POST
+function handlePaymentReturn(req, res) {
+  // PayGate returns these parameters (in query for GET, body for POST)
+  const data = req.method === "POST" ? req.body : req.query;
   const {
     PAY_REQUEST_ID,
     TRANSACTION_STATUS,
     REFERENCE,
     TRANSACTION_ID,
     CHECKSUM
-  } = req.query;
+  } = data;
   
   // Validate checksum
   if (CHECKSUM) {
@@ -626,7 +627,11 @@ app.get("/pay/return", (req, res) => {
     REFERENCE,
     TRANSACTION_ID
   ));
-});
+}
+
+// Return endpoint - user gets redirected here after payment (supports both GET and POST)
+app.get("/pay/return", handlePaymentReturn);
+app.post("/pay/return", handlePaymentReturn);
 
 // Notify endpoint - PayGate posts transaction results here
 app.post("/pay/notify", (req, res) => {
