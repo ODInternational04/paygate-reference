@@ -5,6 +5,10 @@ import axios from "axios";
 
 const app = express();
 
+// Middleware for parsing request bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const PAYGATE_ID = process.env.PAYGATE_ID;
 const PAYGATE_KEY = process.env.PAYGATE_KEY;
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
@@ -530,7 +534,7 @@ app.get("/pay/return", (req, res) => {
 });
 
 // Notify endpoint - PayGate posts transaction results here
-app.post("/pay/notify", express.urlencoded({ extended: false }), (req, res) => {
+app.post("/pay/notify", (req, res) => {
   // PayGate will POST transaction results here
   const {
     PAYGATE_ID: receivedPaygateId,
