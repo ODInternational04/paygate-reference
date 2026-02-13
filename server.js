@@ -266,7 +266,7 @@ app.get("/", (req, res) => {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: white;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -276,7 +276,7 @@ app.get("/", (req, res) => {
     .container {
       background: white;
       border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       max-width: 600px;
       width: 100%;
       padding: 50px 40px;
@@ -298,7 +298,7 @@ app.get("/", (req, res) => {
       margin-bottom: 30px;
     }
     .card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #333;
       border-radius: 16px;
       padding: 30px;
       text-decoration: none;
@@ -307,7 +307,7 @@ app.get("/", (req, res) => {
     }
     .card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
     }
     .card h2 {
       font-size: 24px;
@@ -455,7 +455,7 @@ function thankYouPage(status, reference, transactionId) {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: white;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -465,7 +465,7 @@ function thankYouPage(status, reference, transactionId) {
     .container {
       background: white;
       border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       max-width: 500px;
       width: 100%;
       padding: 50px 40px;
